@@ -40,6 +40,8 @@ Estudo das seguintes funções:
 ## Implementação
 
 - [ ] Implementar versão simples
+- [ ] Implementar função `usage`
+- [ ] Implementar função para pegar opções
 - [ ] Implementar opção `-a`
 - [ ] Implementar opção `-R`
 - [ ] Implementar opção `-l`
