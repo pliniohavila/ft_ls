@@ -1,0 +1,3 @@
+DOCS.md drafts.c dy_arr dy_arr.c log main main.c Makefile print_dir_recursive.c README.md 
+
+DOCS.md .gitignore drafts.c README.md .git dy_arr.c dy_arr .vscode Makefile main print_dir_recursive.c .. log . main.c 

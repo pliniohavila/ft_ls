@@ -27,13 +27,13 @@ void    _ls_v(const char *dirname)
     char        path[MAX_PATH];
     int         size;
 
-    size = 5;
+    size = 16;
     if ((paths =  (char**)malloc(sizeof(char*) * size)) == NULL)
     {
         perror("Error in paths allocation\n");
         exit(EXIT_FAILURE);
     }
-    printf("\nReading files and directories from %s:\n", dirname);
+    printf("\n%s:\n", dirname);
     dir =  opendir(dirname); 
     if (dir == NULL)
     {

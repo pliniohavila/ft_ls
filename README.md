@@ -39,7 +39,7 @@ Estudo das seguintes funções:
 
 ## Implementação
 
-- [ ] Implementar versão simples
+- [X] Implementar versão simples
 - [ ] Implementar função `usage`
 - [ ] Implementar função para pegar opções
 - [ ] Implementar opção `-a`

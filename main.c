@@ -7,15 +7,73 @@
 
 #define MAX_PATH 50
 typedef struct dirent* dirent;
+typedef struct  flags
+{
+    int     a_flag;
+    int     R_flag;
+    int     l_flag;
+    int     t_flag;
+    int     r_flag;
+}       FLAGS;
 
 void    _ls(const char *dirname);
 void    _ls_v(const char *dirname);
+void    init_flags_struc(FLAGS*);
 void    resize_paths_vector(char ***paths, int *size);
+void    get_options(FLAGS*, char**);
 
 int     main(void)
 {
-    _ls_v(".");
+    FLAGS    op_flags;
+
+    init_flags_struc(&op_flags);
+    _ls(".");
     return (0);
+}
+
+void    _ls(const char *dirname)
+{
+    DIR         *dir_ptr;
+    dirent      entry;
+    int         a;
+
+    dir_ptr = opendir(dirname);
+    if (dir_ptr == NULL)
+    {
+        printf("[ERROR]: %s \'%s\'\n", strerror(errno), dirname); 
+        exit(EXIT_FAILURE);
+    }
+    errno = 0;
+    entry = readdir(dir_ptr);
+    a = 1;
+    while (entry)
+    {
+        if (a)
+        {
+            printf("%s  ", entry->d_name);
+        }
+        else 
+        {
+            if (entry->d_name[0] != '.')
+                printf("%s  ", entry->d_name);
+        }
+        entry = readdir(dir_ptr);
+    }
+    if (errno)
+    if (errno != 1)
+    {
+        perror(strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+}
+
+void    init_flags_struc(FLAGS *op_flags)
+{
+    op_flags->a_flag = 0;
+    op_flags->R_flag = 0; 
+    op_flags->l_flag = 0; 
+    op_flags->t_flag = 0; 
+    op_flags->r_flag = 0;  
 }
 
 void    _ls_v(const char *dirname)
@@ -27,7 +85,7 @@ void    _ls_v(const char *dirname)
     char        path[MAX_PATH];
     int         size;
 
-    size = 5;
+    size = 16;
     if ((paths =  (char**)malloc(sizeof(char*) * size)) == NULL)
     {
         perror("Error in paths allocation\n");
@@ -95,3 +153,5 @@ void    resize_paths_vector(char ***paths, int *size)
     *size = new_size;
     *paths = tmp;
 }
+
+// ./main 
