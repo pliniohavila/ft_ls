@@ -16,26 +16,57 @@ typedef struct  flags
     int     r_flag;
 }       FLAGS;
 
-void    _ls(const char *dirname);
+void    ft_ls(const char *dirname, FLAGS*);
 void    _ls_v(const char *dirname);
 void    init_flags_struc(FLAGS*);
 void    resize_paths_vector(char ***paths, int *size);
-void    get_options(FLAGS*, char**);
+void    get_options(char *dirname, char **argv, int argc, FLAGS*);
 
-int     main(void)
+int     main(int argc, char **argv)
 {
-    FLAGS    op_flags;
+    FLAGS       op_flags;
+    char        dirname[PATH_MAX];
 
-    init_flags_struc(&op_flags);
-    _ls(".");
+    memset(dirname, 0, PATH_MAX);
+    strcpy(dirname, ".");
+    if (argc > 1)
+    {
+        init_flags_struc(&op_flags);
+        get_options(dirname, argv, argc, &op_flags);
+    }
+    ft_ls(dirname, &op_flags);
     return (0);
 }
 
-void    _ls(const char *dirname)
+void    get_options(char *dirname, char **argv, int argc, FLAGS *op_flags)
+{
+    int     i;
+
+    i = 0;
+    while (i++ < (argc - 1))
+    {
+        if (argv[i][0] == '.' || argv[i][0] == '/') 
+            strcpy(dirname, argv[i]);
+        if (argv[i][0] == '-')
+        {
+            if (argv[i][1] == 'a')
+                op_flags->a_flag = 1; 
+            if (argv[i][1] == 'R')
+                op_flags->R_flag = 1; 
+            if (argv[i][1] == 'l')
+                op_flags->l_flag = 1; 
+            if (argv[i][1] == 't')
+                op_flags->t_flag = 1; 
+            if (argv[i][1] == 'r')
+                op_flags->r_flag = 1; 
+        }
+    }
+}
+
+void    ft_ls(const char *dirname, FLAGS *op_flags)
 {
     DIR         *dir_ptr;
     dirent      entry;
-    int         a;
 
     dir_ptr = opendir(dirname);
     if (dir_ptr == NULL)
@@ -45,10 +76,9 @@ void    _ls(const char *dirname)
     }
     errno = 0;
     entry = readdir(dir_ptr);
-    a = 1;
-    while (entry)
+    while (entry != NULL)
     {
-        if (a)
+        if (op_flags->a_flag)
         {
             printf("%s  ", entry->d_name);
         }
@@ -69,11 +99,13 @@ void    _ls(const char *dirname)
 
 void    init_flags_struc(FLAGS *op_flags)
 {
-    op_flags->a_flag = 0;
-    op_flags->R_flag = 0; 
-    op_flags->l_flag = 0; 
-    op_flags->t_flag = 0; 
-    op_flags->r_flag = 0;  
+    *op_flags = (FLAGS){ 
+        .a_flag = 0, 
+        .R_flag = 0, 
+        .l_flag = 0, 
+        .t_flag = 0, 
+        .r_flag = 0 
+    };
 }
 
 void    _ls_v(const char *dirname)
@@ -153,5 +185,3 @@ void    resize_paths_vector(char ***paths, int *size)
     *size = new_size;
     *paths = tmp;
 }
-
-// ./main 
