@@ -56,6 +56,8 @@ Estudo das seguintes funções:
 - https://medium.com/@bdov_/https-medium-com-bdov-how-does-the-shell-command-ls-work-internally-11ea701fa1d2
 - https://github.com/9fans/plan9port/blob/master/src/cmd/ls.c
 - https://sites.uclouvain.be/SystInfo/usr/include/dirent.h
+- https://linuxopsys.com/topics/linux-ls-command
+- https://jameshfisher.com/2017/02/24/what-is-mode_t/
 
 
 

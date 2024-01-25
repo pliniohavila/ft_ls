@@ -5,7 +5,7 @@ DBG   	= -g3
 
 
 all:
-	$(CC) $(FLAGS) -g3  main.c -o main
+	$(CC) $(FLAGS) stat.c -o main
 
 run:
 	./main
