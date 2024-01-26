@@ -58,6 +58,7 @@ Estudo das seguintes funções:
 - https://sites.uclouvain.be/SystInfo/usr/include/dirent.h
 - https://linuxopsys.com/topics/linux-ls-command
 - https://jameshfisher.com/2017/02/24/what-is-mode_t/
+- https://www.ime.usp.br/~pf/algoritmos/apend/time.h.html
 
 
 
