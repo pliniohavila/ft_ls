@@ -41,10 +41,10 @@ Estudo das seguintes funções:
 
 - [X] Implementar versão simples
 - [ ] Implementar função `usage`
-- [ ] Implementar função para pegar opções
-- [ ] Implementar opção `-a`
-- [ ] Implementar opção `-R`
-- [ ] Implementar opção `-l`
+- [X] Implementar função para pegar opções
+- [X] Implementar opção `-a`
+- [X] Implementar opção `-R`
+- [X] Implementar opção `-l`
 - [ ] Implementar opção `-r`
 - [ ] Implementar opção `-t`
 
