@@ -1,26 +1,15 @@
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/types.h>
-#include <dirent.h>
-
-#define MAX_PATH 50
-typedef struct dirent* dirent;
-typedef struct  flags
-{
-    int     a_flag;
-    int     R_flag;
-    int     l_flag;
-    int     t_flag;
-    int     r_flag;
-}       FLAGS;
-
-void    ft_ls(const char *dirname, FLAGS*);
-void    _ls_v(const char *dirname);
-void    init_flags_struc(FLAGS*);
-void    resize_paths_vector(char ***paths, int *size);
-void    get_options(char *dirname, char **argv, int argc, FLAGS*);
+#include <sys/stat.h>
+// #include <dirent.h>
+#include <pwd.h>
+#include <grp.h>
+#include <time.h>
+#include "ft_ls.h"
 
 int     main(int argc, char **argv)
 {
@@ -63,6 +52,73 @@ void    get_options(char *dirname, char **argv, int argc, FLAGS *op_flags)
     }
 }
 
+void    print_dir_entry(const char *dirname, char *e_name, FLAGS *op_flags)
+{
+    char    e_path_name[PATH_MAX];
+    
+    memset(e_path_name, 0, MAX_PATH);
+    strcat(e_path_name, dirname);
+    strcat(e_path_name, "/");
+    strcat(e_path_name, e_name);
+    if (op_flags->a_flag)
+    {
+        if (op_flags->l_flag)
+            print_l_flag(e_path_name, e_name);
+        else
+            printf("%s  ", e_name);
+    }
+    else 
+    {
+        if (e_name[0] != '.')
+        {
+            if (op_flags->l_flag)
+                print_l_flag(e_path_name, e_name);
+            else
+                printf("%s  ", e_name);
+        }
+    }
+}
+
+void    print_l_flag(char *e_path_name, char *e_name)
+{
+    struct stat stats;
+
+    if (stat(e_path_name, &stats) == 0)
+    {
+        print_e_props(stats, e_name);
+    }
+    else 
+    {
+        printf("[ERROR]: %s'\n", strerror(errno)); 
+        exit(errno);
+    }
+}
+
+void    print_e_props(struct stat stats, const char *e_name)
+{
+    char            buf[10];
+    struct passwd   *user_info;
+    struct group    *group_info;
+    char            date_string[256];
+
+    strmode(stats.st_mode, buf);
+    printf("-%s ", buf);
+    printf("%lu ", stats.st_nlink);
+    user_info = getpwuid(stats.st_uid);
+    group_info = getgrgid(stats.st_gid);
+    if (user_info == NULL || group_info == NULL)
+    {
+        printf("[ERROR]: %s'\n", strerror(errno)); 
+        exit(errno);
+    }
+    printf("%s ", user_info->pw_name);
+    printf("%s ", group_info->gr_name);
+    printf("%ld ", stats.st_size);
+    strncpy(date_string, (ctime(&stats.st_mtim.tv_sec)) + 4, 12);
+    printf("%s ", date_string);
+    printf("%s\n", e_name);
+}
+
 void    ft_ls(const char *dirname, FLAGS *op_flags)
 {
     DIR         *dir_ptr;
@@ -78,34 +134,14 @@ void    ft_ls(const char *dirname, FLAGS *op_flags)
     entry = readdir(dir_ptr);
     while (entry != NULL)
     {
-        if (op_flags->a_flag)
-        {
-            printf("%s  ", entry->d_name);
-        }
-        else 
-        {
-            if (entry->d_name[0] != '.')
-                printf("%s  ", entry->d_name);
-        }
+        print_dir_entry(dirname, entry->d_name, op_flags);
         entry = readdir(dir_ptr);
     }
-    if (errno)
-    if (errno != 1)
+    if (errno != 0)
     {
         perror(strerror(errno));
         exit(EXIT_FAILURE);
     }
-}
-
-void    init_flags_struc(FLAGS *op_flags)
-{
-    *op_flags = (FLAGS){ 
-        .a_flag = 0, 
-        .R_flag = 0, 
-        .l_flag = 0, 
-        .t_flag = 0, 
-        .r_flag = 0 
-    };
 }
 
 void    _ls_v(const char *dirname)
@@ -123,7 +159,7 @@ void    _ls_v(const char *dirname)
         perror("Error in paths allocation\n");
         exit(EXIT_FAILURE);
     }
-    printf("\nReading files and directories from %s:\n", dirname);
+    printf("\n%s:\n", dirname);
     dir =  opendir(dirname); 
     if (dir == NULL)
     {
@@ -161,6 +197,32 @@ void    _ls_v(const char *dirname)
     free(paths);
     printf("\n");
     closedir(dir);
+}
+
+void    init_flags_struc(FLAGS *op_flags)
+{
+    *op_flags = (FLAGS){ 
+        .a_flag = 0, 
+        .R_flag = 0, 
+        .l_flag = 0, 
+        .t_flag = 0, 
+        .r_flag = 0 
+    };
+}
+
+void    strmode(mode_t mode, char *buf) 
+{
+    char        chars[10];
+    size_t      i;
+
+    strcpy(chars, "rwxrwxrwx");
+    i = 0;
+    while (i < 9) 
+    {
+        buf[i] = (mode & (1 << (8-i))) ? chars[i] : '-';
+        i++;
+    }
+    buf[9] = '\0';
 }
 
 void    resize_paths_vector(char ***paths, int *size)

@@ -46,3 +46,10 @@ void    _ls(const char *dirname)
     printf("\n\n");
     closedir(dir);
 }
+
+// int stat(const char *filename, struct stat *buf);
+
+// struct timespec {
+//     time_t   tv_sec;        /* seconds */
+//     long     tv_nsec;       /* nanoseconds */
+// };

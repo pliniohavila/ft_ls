@@ -10,21 +10,19 @@
 #include <grp.h>
 #include <time.h>
 
-#define MAX_PATH 50
-// int stat(const char *filename, struct stat *buf);
+// #define MAX_PATH 50
 typedef struct dirent* dirent;
 
-void    file_props(struct stat stats, const char *file);
+void    print_e_props(struct stat stats, const char *file);
 
 int     main(void)
 {
-    // DIR     *
     char        *file;
     struct stat stats;
 
     file = "a.out";
     if (stat(file, &stats) == 0)
-        file_props(stats, file);
+        print_e_props(stats, file);
     else 
         return (1);
     return (0);
@@ -45,21 +43,14 @@ void strmode(mode_t mode, char *buf)
     buf[9] = '\0';
 }
 
-// struct timespec {
-//     time_t   tv_sec;        /* seconds */
-//     long     tv_nsec;       /* nanoseconds */
-// };
-
-void    file_props(struct stat stats, const char *file)
+void    print_e_props(struct stat stats, const char *file)
 {
     char            buf[10];
     struct passwd   *user_info;
     struct group    *group_info;
-    // struct tm      *tm;
-    // char            datestring[256];
+    char            date_string[256];
 
     strmode(stats.st_mode, buf);
-    //   nlink_t   st_nlink;
     printf("-%s ", buf);
     printf("%lu ", stats.st_nlink);
     user_info = getpwuid(stats.st_uid);
@@ -67,12 +58,12 @@ void    file_props(struct stat stats, const char *file)
     if (user_info == NULL || group_info == NULL)
     {
         printf("[ERROR]: %s'\n", strerror(errno)); 
-        exit(EXIT_FAILURE);
+        exit(errno);
     }
     printf("%s ", user_info->pw_name);
     printf("%s ", group_info->gr_name);
     printf("%ld ", stats.st_size);
-    printf("%s ", ctime(&stats.st_mtim.tv_sec));
-    // printf("-%s %lu %s\n", buf, stats.st_nlink, file);
+    strncpy(date_string, (ctime(&stats.st_mtim.tv_sec)) + 4, 12);
+    printf("%s ", date_string);
     printf("%s\n", file);
 }
