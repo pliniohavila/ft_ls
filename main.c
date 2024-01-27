@@ -5,7 +5,6 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-// #include <dirent.h>
 #include <pwd.h>
 #include <grp.h>
 #include <time.h>
@@ -23,8 +22,96 @@ int     main(int argc, char **argv)
         init_flags_struc(&op_flags);
         get_options(dirname, argv, argc, &op_flags);
     }
-    ft_ls(dirname, &op_flags);
+    if (op_flags.R_flag)
+        _ls_v(dirname, &op_flags);
+    else
+        ft_ls(dirname, &op_flags);
     return (0);
+}
+
+void    ft_ls(const char *dirname, FLAGS *op_flags)
+{
+    DIR         *dir_ptr;
+    dirent      entry;
+
+    dir_ptr = opendir(dirname);
+    if (dir_ptr == NULL)
+    {
+        printf("[ERROR]: %s \'%s\'\n", strerror(errno), dirname); 
+        exit(EXIT_FAILURE);
+    }
+    errno = 0;
+    entry = readdir(dir_ptr);
+    while (entry != NULL)
+    {
+        print_dir_entry(dirname, entry->d_name, op_flags);
+        entry = readdir(dir_ptr);
+    }
+    if (errno != 0)
+    {
+        perror(strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+}
+
+void    _ls_v(const char *dirname, FLAGS *op_flags)
+{
+    DIR         *dir;
+    char        **paths;
+    int         path_len;
+    dirent      entry;
+    char        path[MAX_PATH];
+    int         size;
+
+    size = 16;
+    if ((paths =  (char**)malloc(sizeof(char*) * size)) == NULL)
+    {
+        perror("Error in paths allocation\n");
+        exit(EXIT_FAILURE);
+    }
+    printf("\n%s:\n", dirname);
+    dir =  opendir(dirname); 
+    if (dir == NULL)
+    {
+        printf("[ERROR]: %s \'%s\'\n", strerror(errno), dirname); 
+        exit(EXIT_FAILURE);
+    }
+    path_len = 0; 
+    entry = readdir(dir);
+    while (entry != NULL)
+    {
+        print_dir_entry(dirname, entry->d_name, op_flags);
+        if (entry->d_type == DT_DIR && strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0)
+        {
+            memset(path, 0, MAX_PATH);
+            strcat(path, dirname);
+            strcat(path, "/");
+            strcat(path, entry->d_name);
+            if (path_len == (size - 1))
+                resize_paths_vector(&paths, &size);
+            paths[path_len] = strdup(path);
+            if (paths[path_len] == NULL)
+            {
+                perror("Error duplicating path");
+                exit(EXIT_FAILURE);
+            }
+            path_len++;
+        }
+        entry = readdir(dir);
+    }
+    if (errno != 0)
+    {
+        perror(strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+    for (int i = 0; i < path_len; i++)
+    {
+        _ls_v(paths[i], op_flags);
+        free(paths[i]);
+    }
+    free(paths);
+    printf("\n");
+    closedir(dir);
 }
 
 void    get_options(char *dirname, char **argv, int argc, FLAGS *op_flags)
@@ -117,86 +204,6 @@ void    print_e_props(struct stat stats, const char *e_name)
     strncpy(date_string, (ctime(&stats.st_mtim.tv_sec)) + 4, 12);
     printf("%s ", date_string);
     printf("%s\n", e_name);
-}
-
-void    ft_ls(const char *dirname, FLAGS *op_flags)
-{
-    DIR         *dir_ptr;
-    dirent      entry;
-
-    dir_ptr = opendir(dirname);
-    if (dir_ptr == NULL)
-    {
-        printf("[ERROR]: %s \'%s\'\n", strerror(errno), dirname); 
-        exit(EXIT_FAILURE);
-    }
-    errno = 0;
-    entry = readdir(dir_ptr);
-    while (entry != NULL)
-    {
-        print_dir_entry(dirname, entry->d_name, op_flags);
-        entry = readdir(dir_ptr);
-    }
-    if (errno != 0)
-    {
-        perror(strerror(errno));
-        exit(EXIT_FAILURE);
-    }
-}
-
-void    _ls_v(const char *dirname)
-{
-    DIR         *dir;
-    char        **paths;
-    int         path_len;
-    dirent      entity;
-    char        path[MAX_PATH];
-    int         size;
-
-    size = 16;
-    if ((paths =  (char**)malloc(sizeof(char*) * size)) == NULL)
-    {
-        perror("Error in paths allocation\n");
-        exit(EXIT_FAILURE);
-    }
-    printf("\n%s:\n", dirname);
-    dir =  opendir(dirname); 
-    if (dir == NULL)
-    {
-        printf("[ERROR]: %s \'%s\'\n", strerror(errno), dirname); 
-        exit(EXIT_FAILURE);
-    }
-    path_len = 0; 
-    entity = readdir(dir);
-    while (entity != NULL)
-    {
-        printf("%s\t", entity->d_name);
-        if (entity->d_type == DT_DIR && strcmp(entity->d_name, ".") != 0 && strcmp(entity->d_name, "..") != 0)
-        {
-            memset(path, 0, MAX_PATH);
-            strcat(path, dirname);
-            strcat(path, "/");
-            strcat(path, entity->d_name);
-            if (path_len == (size - 1))
-                resize_paths_vector(&paths, &size);
-            paths[path_len] = strdup(path);
-            if (paths[path_len] == NULL)
-            {
-                perror("Error duplicating path");
-                exit(EXIT_FAILURE);
-            }
-            path_len++;
-        }
-        entity = readdir(dir);
-    }
-    for (int i = 0; i < path_len; i++)
-    {
-        _ls_v(paths[i]);
-        free(paths[i]);
-    }
-    free(paths);
-    printf("\n");
-    closedir(dir);
 }
 
 void    init_flags_struc(FLAGS *op_flags)

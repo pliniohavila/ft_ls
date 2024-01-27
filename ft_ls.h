@@ -17,7 +17,7 @@ typedef struct  flags
 }       FLAGS;
 
 void    ft_ls(const char*, FLAGS*);
-void    _ls_v(const char*);
+void    _ls_v(const char*, FLAGS*);
 void    init_flags_struc(FLAGS*);
 void    resize_paths_vector(char***, int *);
 void    get_options(char*, char**, int, FLAGS*);
